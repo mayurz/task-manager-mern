@@ -8,7 +8,7 @@ const createUser = async (req, res) => {
     const token = await user.generateAuthToken();
 
     res.status(201).json({
-      code: 200,
+      code: 201,
       message: "User created successfully",
       user,
       token,

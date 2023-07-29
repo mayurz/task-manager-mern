@@ -14,10 +14,21 @@ const schema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    userId: {
+    owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
   },
-  { timeseries: true }
+  { timestamps: true }
 );
+
+schema.statics.findTasksByUser = async function (userId) {
+  console.log(userId);
+  const tasks = await this.find({ owner: userId }).exec();
+
+  return tasks;
+};
+
+const Task = mongoose.model("Task", schema);
+
+module.exports = Task;

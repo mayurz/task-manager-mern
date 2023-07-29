@@ -21,12 +21,29 @@ const schema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    tokens: [
+      {
+        token: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    virtuals: {
+      tasks: {
+        options: { ref: "Task", localField: "_id", foreignField: "owner" },
+      },
+    },
+  }
 );
 
 schema.methods.generateAuthToken = async function () {
   const token = jwt.sign({ _id: this._id.toString() }, process.env.JWT_KEY);
+
+  this.tokens = this.tokens.concat({ token });
 
   return token;
 };
@@ -51,8 +68,10 @@ schema.pre("save", async function (next) {
 
 // Exclude password field from query results by default
 schema.set("toJSON", {
-  transform: (doc, ret, options) => {
+  transform: function (doc, ret, options) {
     delete ret.password;
+    delete ret.tokens;
+
     return ret;
   },
 });
